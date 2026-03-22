@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-export const BASE = "http://localhost:5000";
+export const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const API = `${BASE}/api`;
 
 const req = (url, options = {}) =>
