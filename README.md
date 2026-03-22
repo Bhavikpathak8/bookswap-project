@@ -1,206 +1,322 @@
-# BookSwap — Complete Project
+<div align="center">
 
-## Full Stack: Python Flask + React + PostgreSQL
+# 📚 BookSwap
+
+### India's Community Platform for Buying & Selling Second-Hand Books
+
+[![Python](https://img.shields.io/badge/Python-3.14-blue?style=flat-square&logo=python)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.x-black?style=flat-square&logo=flask)](https://flask.palletsprojects.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql)](https://postgresql.org)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-Real--time-black?style=flat-square&logo=socketdotio)](https://socket.io)
+
+> A full-stack second-hand book marketplace built as a 3rd year university project.  
+> Connect with readers in your city — buy affordable books or earn by selling ones you've finished.
+
+</div>
 
 ---
 
-## Project Structure
+## ✨ Features
+
+### 👤 User Features
+| Feature | Description |
+|---|---|
+| 🔐 Auth | Email/password login + Google OAuth |
+| 📚 Browse Books | Search, filter by category, city, price, condition |
+| 🔍 Search Autocomplete | Live suggestions as you type |
+| 📖 Book Detail | Full info, seller profile, similar books |
+| 🛒 Buy Books | Purchase using wallet balance |
+| ❤️ Wishlist | Save books to buy later |
+| 💬 Real-time Chat | Socket.IO powered live messaging |
+| 📦 Order Tracking | Pending → Shipped → Delivered with progress bar |
+| 💰 Wallet System | Add money, view transaction history |
+| 🎁 Referral System | Share code, both users get bonus |
+| ⭐ Reviews | Rate and review sellers |
+| 🔔 Notifications | Real-time alerts for orders, messages, disputes |
+| 📊 Seller Analytics | Views, earnings, monthly chart per book |
+| 🏪 Seller Store | Public profile page with all listings |
+| 📱 PWA | Installable on mobile like a native app |
+
+### 🛡️ Admin Features
+| Feature | Description |
+|---|---|
+| 📊 Dashboard | Revenue chart, total users/books/orders |
+| ✅ Book Approval | Approve or reject listings before they go live |
+| ⭐ Featured Books | Pin books to the homepage |
+| 👥 User Management | View, ban, unban, delete users |
+| ⚖️ Dispute Resolution | Review and resolve buyer-seller disputes |
+| 💸 Commission Control | Adjust platform fee via slider |
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Python 3.14** + **Flask** — REST API
+- **PostgreSQL** — Database
+- **SQLAlchemy** — ORM
+- **Flask-Login** — Session management
+- **Flask-SocketIO + Gevent** — Real-time WebSocket chat
+- **Authlib** — Google OAuth 2.0
+- **Werkzeug** — Password hashing & file uploads
+
+### Frontend
+- **React 18** + **Vite** — UI framework
+- **React Router v6** — Client-side routing
+- **Socket.IO Client** — Real-time chat
+- **PWA** — Service worker + Web manifest
+
+### Infrastructure
+- **pgAdmin 4** — Database management
+- **Git + GitHub** — Version control
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.14+
+- Node.js 18+
+- PostgreSQL 16+
+- pgAdmin 4
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Bhavikpathak8/bookswap-project.git
+cd bookswap-project
+```
+
+### 2. Setup Database
+Open **pgAdmin** → connect to PostgreSQL → create a new database:
+```sql
+CREATE DATABASE bookswap_db;
+```
+
+Then run all migrations (open Query Tool and paste):
+```sql
+-- Core tables are created automatically by Flask on first run
+-- Run these for extra columns:
+ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(20) UNIQUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by INTEGER;
+ALTER TABLE books ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_status VARCHAR(50) DEFAULT 'pending';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_note TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipped_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS wishlists (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    amount FLOAT NOT NULL,
+    txn_type VARCHAR(50) NOT NULL,
+    description VARCHAR(255),
+    balance_after FLOAT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS referrals (
+    id SERIAL PRIMARY KEY,
+    referrer_id INTEGER REFERENCES users(id),
+    referred_id INTEGER REFERENCES users(id),
+    bonus_paid BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS disputes (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id),
+    user_id INTEGER REFERENCES users(id),
+    issue TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'open',
+    resolution_note TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS platform_settings (
+    id SERIAL PRIMARY KEY,
+    commission_rate FLOAT DEFAULT 10.0,
+    referral_bonus FLOAT DEFAULT 50.0
+);
+
+INSERT INTO platform_settings (commission_rate)
+SELECT 10.0 WHERE NOT EXISTS (SELECT 1 FROM platform_settings);
+
+CREATE TABLE IF NOT EXISTS book_views (
+    id SERIAL PRIMARY KEY,
+    book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+    viewer_ip VARCHAR(50),
+    viewed_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    message TEXT NOT NULL,
+    notif_type VARCHAR(50) DEFAULT 'info',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 3. Setup Backend
+```bash
+cd backend
+
+# Install dependencies
+python -m pip install flask flask-sqlalchemy flask-login flask-cors flask-socketio authlib requests gevent gevent-websocket werkzeug psycopg2-binary razorpay
+
+# Run the server
+python app.py
+```
+
+Backend runs at: **http://localhost:5000**
+
+### 4. Setup Frontend
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Run dev server
+npm run dev
+```
+
+Frontend runs at: **http://localhost:5173**
+
+### 5. Default Admin Account
+```
+Email:    admin@bookswap.com
+Password: admin123
+```
+
+---
+
+## 📁 Project Structure
 
 ```
 bookswap-project/
 ├── backend/
-│   ├── app.py              ← All API routes
-│   ├── models.py           ← Database models
-│   ├── requirements.txt    ← Python packages
-│   └── static/uploads/     ← Book images (auto-created)
+│   ├── app.py          # All Flask routes & API endpoints
+│   ├── models.py       # SQLAlchemy database models
+│   ├── requirements.txt
+│   └── static/
+│       └── uploads/    # Book images
 │
 └── frontend/
-    ├── src/
-    │   ├── api.js                      ← All API calls + Socket
-    │   ├── App.jsx                     ← Routes
-    │   ├── index.css                   ← Global styles + animations
-    │   ├── context/AuthContext.jsx     ← Global user state
-    │   ├── components/
-    │   │   ├── Navbar.jsx              ← Top nav with notifications
-    │   │   ├── BookCard.jsx            ← Book listing card
-    │   │   └── UI.jsx                  ← Shared components
-    │   └── pages/
-    │       ├── Home.jsx
-    │       ├── Books.jsx               ← Browse + location filter
-    │       ├── Auth.jsx                ← Login + Register
-    │       ├── Dashboard.jsx           ← Dashboard + AddBook + EditBook
-    │       ├── BookDetail.jsx          ← Detail + Orders + Wallet
-    │       ├── Messages.jsx            ← Real-time chat
-    │       ├── Profile.jsx             ← Profile + verification
-    │       └── AdminDashboard.jsx      ← Full admin panel
     ├── index.html
-    ├── package.json
-    └── vite.config.js
+    ├── public/
+    │   ├── manifest.json   # PWA manifest
+    │   └── sw.js           # Service worker
+    └── src/
+        ├── App.jsx         # Routes
+        ├── api.js          # All API calls
+        ├── index.css       # Global styles
+        ├── components/
+        │   ├── Navbar.jsx
+        │   ├── BookCard.jsx
+        │   └── UI.jsx
+        ├── context/
+        │   └── AuthContext.jsx
+        └── pages/
+            ├── Home.jsx
+            ├── Books.jsx
+            ├── Auth.jsx
+            ├── Dashboard.jsx
+            ├── BookDetail.jsx
+            ├── Messages.jsx
+            ├── Profile.jsx
+            ├── SellerAnalytics.jsx
+            ├── SellerStore.jsx
+            └── AdminDashboard.jsx
 ```
 
 ---
 
-## Setup — Backend
+## 🔑 Environment Variables
 
-### 1. PostgreSQL database
-```sql
-psql -U postgres
-CREATE DATABASE bookswap_db;
-\q
-```
+For production, set these as environment variables:
 
-### 2. Virtual environment
-```bash
-cd backend
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Mac/Linux
-source venv/bin/activate
-```
-
-### 3. Install packages
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run Flask
-```bash
-python app.py
-```
-
-Flask runs at: `http://localhost:5000`
-
-On first run, tables are auto-created and admin account is created:
-- Email: `admin@bookswap.com`
-- Password: `admin123`
+| Variable | Description | Example |
+|---|---|---|
+| `SECRET_KEY` | Flask secret key | `your-secret-key` |
+| `DATABASE_URL` | PostgreSQL connection | `postgresql://user:pass@host/db` |
+| `GOOGLE_CLIENT_ID` | Google OAuth ID | `xxxxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret | `GOCSPX-xxxxx` |
+| `RAZORPAY_KEY` | Razorpay key (optional) | `rzp_test_xxxxx` |
+| `RAZORPAY_SECRET` | Razorpay secret (optional) | `xxxxx` |
 
 ---
 
-## Setup — Frontend
+## 📱 PWA Installation
 
-### 1. Install Node packages
-```bash
-cd frontend
-npm install
-```
+BookSwap is installable as a mobile app:
 
-### 2. Run Vite dev server
-```bash
-npm run dev
-```
+1. Open the site in **Chrome on Android**
+2. Tap the **3-dot menu** → **"Add to Home Screen"**
+3. App installs with BookSwap icon
 
-React runs at: `http://localhost:5173`
+Or on desktop Chrome, click the **install icon** in the address bar.
 
 ---
 
-## Features Implemented
+## 🔄 How Book Exchange Works
 
-### Authentication
-- Register with city/state/pincode
-- Login + session management
-- Logout
-- Google OAuth (configure client ID in app.py)
-- Auto-create admin on startup
-
-### Books
-- Browse books with live search
-- Filter by category, city, price range
-- **Location-based filter** — see only books from your city
-- Book detail page with seller info
-- Add book (with image upload)
-- Edit book
-- Delete book
-- **Admin book approval** — books go live only after admin approves
-
-### Location-Based Discovery
-- Users set their city on registration
-- Browse page auto-filters to show nearby books
-- "Near me only" checkbox to show only your city's books
-- Books store city/state/pincode from seller's profile
-
-### Buying & Orders
-- Buy book (wallet deduction + commission)
-- View orders with full breakdown
-- Cancel order (auto-refund)
-- **Raise disputes** on orders with admin review
-
-### Wallet
-- View balance
-- Add money (quick amounts + custom)
-
-### Chat
-- Real-time messaging with Socket.IO
-- Typing indicators
-- Delete single messages or full conversations
-- Unread message count badge
-
-### Notifications
-- Auto-triggered on: buy, sell, review, dispute, ban, approve/reject
-- Bell icon with unread count
-- Mark all as read
-
-### Profile
-- View profile with stats
-- Edit city/state/pincode/phone
-- **Email verification** (generates token, sends link)
-- **Phone OTP verification** (generates OTP, logs to console in dev)
-- View received reviews
-
-### Admin Panel
-- Stats: total users, books, orders, revenue
-- **Real monthly revenue chart** (from actual database data)
-- User management with ban/unban + delete
-- **Pending book approvals** with approve/reject
-- **Disputes management** with resolve/reject + notes
-- **Commission rate control** (slider from 0–50%)
-
----
-
-## New API Endpoints Added
-
-| Method | URL | Description |
-|--------|-----|-------------|
-| PUT | `/api/profile/update` | Update city/state/pincode/phone |
-| GET | `/api/books?city=Surat&nearby=true` | Location-filtered browse |
-| POST | `/api/admin/approve_book/<id>` | Approve or reject book |
-| GET | `/api/admin/pending_books` | List pending approval |
-| POST | `/api/dispute` | Raise dispute on order |
-| GET | `/api/my_disputes` | User's own disputes |
-| GET | `/api/admin/disputes` | All disputes (admin) |
-| POST | `/api/admin/resolve_dispute/<id>` | Resolve or reject dispute |
-| POST | `/api/admin/ban_user/<id>` | Ban a user |
-| POST | `/api/admin/unban_user/<id>` | Unban a user |
-| POST | `/api/send_verification_email` | Send email verify link |
-| GET | `/api/verify_email/<token>` | Verify email token |
-| POST | `/api/send_phone_otp` | Send phone OTP |
-| POST | `/api/verify_phone_otp` | Verify phone OTP |
-| GET | `/api/notifications` | Get notifications |
-| POST | `/api/notifications/mark_read` | Mark all read |
-| GET | `/api/notifications/unread_count` | Get unread count |
-| GET | `/api/admin/commission` | Get commission rate |
-| PUT | `/api/admin/commission` | Update commission rate |
-| GET | `/api/reviews/<user_id>` | Get user's reviews |
-
----
-
-## Google OAuth Setup (Optional)
-
-1. Go to https://console.cloud.google.com/
-2. Create OAuth 2.0 credentials
-3. Set redirect URI: `http://localhost:5000/api/google_auth`
-4. Replace in `app.py`:
-```python
-client_id='YOUR_GOOGLE_CLIENT_ID',
-client_secret='YOUR_GOOGLE_CLIENT_SECRET',
+```
+Seller lists book → Admin approves → Book goes live
+         ↓
+Buyer finds book → Chats with seller → Agrees on meetup/shipping
+         ↓
+Buyer purchases → Wallet deducted → Seller notified
+         ↓
+Seller ships → Updates tracking → Buyer gets notified
+         ↓
+Delivered → Seller wallet credited → Both can leave reviews
 ```
 
-## SMS/Email in Production
+**Why use the platform even for local meetups?**
+- 🛡️ **Buyer protection** — dispute system refunds if something goes wrong
+- ⭐ **Verified sellers** — ratings and reviews build trust
+- 💬 **Chat history** — proof of all agreements
+- 📍 **Local discovery** — find books near you easily
 
-- **Email**: Replace `print()` in `send_verification_email` with SMTP/SendGrid
-- **SMS OTP**: Replace `print()` in `send_phone_otp` with Twilio/MSG91
+---
 
-In development, both the verify link and OTP are printed in the Flask terminal.
-"# bookswap-project" 
+## 🏫 About This Project
+
+Built as a **3rd Year University Project** demonstrating:
+
+- Full-stack web development (Python + React)
+- RESTful API design
+- Real-time communication (WebSockets)
+- Database design and management
+- Authentication and authorization
+- Payment gateway integration concepts
+- Progressive Web App (PWA)
+- Version control with Git
+
+---
+
+## 👨‍💻 Developer
+
+**Bhavik Pathak**  
+3rd Year Computer Science Student  
+📧 bhavikpathak08@gmail.com  
+🔗 [GitHub](https://github.com/Bhavikpathak8)
+
+---
+
+<div align="center">
+
+Made with ❤️ for readers everywhere
+
+</div>
