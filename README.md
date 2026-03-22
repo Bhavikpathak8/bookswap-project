@@ -309,7 +309,7 @@ Built as a **3rd Year University Project** demonstrating:
 ## 👨‍💻 Developer
 
 **Bhavik Pathak**  
-3rd Year Computer Science Student  
+3rd Year BScIT Student  
 📧 bhavikpathak08@gmail.com  
 🔗 [GitHub](https://github.com/Bhavikpathak8)
 
