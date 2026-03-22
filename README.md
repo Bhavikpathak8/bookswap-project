@@ -203,3 +203,4 @@ client_secret='YOUR_GOOGLE_CLIENT_SECRET',
 - **SMS OTP**: Replace `print()` in `send_phone_otp` with Twilio/MSG91
 
 In development, both the verify link and OTP are printed in the Flask terminal.
+"# bookswap-project" 
