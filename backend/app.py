@@ -26,8 +26,7 @@ from sqlalchemy import func, extract
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'bookswap_secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/bookswap_db'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:1234@localhost:5432/bookswap_db').replace('postgres://', 'postgresql://')
 db.init_app(app)
 
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
@@ -1715,4 +1714,6 @@ with app.app_context():
 # ========================
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("RAILWAY_ENVIRONMENT") is None
+    socketio.run(app, debug=debug, host="0.0.0.0", port=port)
