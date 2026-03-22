@@ -13,8 +13,9 @@ import { BookDetail, Orders, Wallet }   from "./pages/BookDetail";
 import Messages      from "./pages/Messages";
 import Profile       from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import SellerAnalytics from "./pages/SellerAnalytics";
+import SellerStore   from "./pages/SellerStore";
 
-// ── Protected route ───────────────────────────────────────────
 function Protected({ children }) {
   const { user, loading } = useAuth();
   if (loading) return null;
@@ -27,7 +28,6 @@ function AdminRoute({ children }) {
   return user?.is_admin ? children : <Navigate to="/" replace />;
 }
 
-// ── Inner App (needs AuthContext) ─────────────────────────────
 function AppInner() {
   const [toast, setToast] = useState(null);
 
@@ -39,25 +39,24 @@ function AppInner() {
   const toastProps = { showToast };
 
   return (
-    <WakeUp>
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/"           element={<Home />} />
-        <Route path="/books"      element={<Books />} />
-        <Route path="/book/:id"   element={<BookDetail {...toastProps} />} />
-        <Route path="/login"      element={<Login    {...toastProps} />} />
-        <Route path="/register"   element={<Register {...toastProps} />} />
+        <Route path="/"          element={<Home />} />
+        <Route path="/books"     element={<Books />} />
+        <Route path="/book/:id"  element={<BookDetail {...toastProps} />} />
+        <Route path="/login"     element={<Login    {...toastProps} />} />
+        <Route path="/register"  element={<Register {...toastProps} />} />
 
-        <Route path="/dashboard"  element={<Protected><Dashboard {...toastProps} /></Protected>} />
-        <Route path="/add_book"   element={<Protected><AddBook   {...toastProps} /></Protected>} />
+        <Route path="/dashboard" element={<Protected><Dashboard   {...toastProps} /></Protected>} />
+        <Route path="/add_book"  element={<Protected><AddBook     {...toastProps} /></Protected>} />
         <Route path="/edit_book/:id" element={<Protected><EditBook {...toastProps} /></Protected>} />
-        <Route path="/orders"     element={<Protected><Orders    {...toastProps} /></Protected>} />
-        <Route path="/wallet"     element={<Protected><Wallet    {...toastProps} /></Protected>} />
-        <Route path="/messages"   element={<Protected><Messages  {...toastProps} /></Protected>} />
-        <Route path="/profile"    element={<Protected><Profile   {...toastProps} /></Protected>} />
-        <Route path="/admin"      element={<AdminRoute><AdminDashboard {...toastProps} /></AdminRoute>} />
-        <Route path="/analytics"  element={<Protected><SellerAnalytics {...toastProps} /></Protected>} />
+        <Route path="/orders"    element={<Protected><Orders      {...toastProps} /></Protected>} />
+        <Route path="/wallet"    element={<Protected><Wallet      {...toastProps} /></Protected>} />
+        <Route path="/messages"  element={<Protected><Messages    {...toastProps} /></Protected>} />
+        <Route path="/profile"   element={<Protected><Profile     {...toastProps} /></Protected>} />
+        <Route path="/analytics" element={<Protected><SellerAnalytics {...toastProps} /></Protected>} />
+        <Route path="/admin"     element={<AdminRoute><AdminDashboard {...toastProps} /></AdminRoute>} />
         <Route path="/seller/:sellerId" element={<SellerStore {...toastProps} />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -65,7 +64,6 @@ function AppInner() {
 
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
     </BrowserRouter>
-    </WakeUp>
   );
 }
 
