@@ -26,10 +26,11 @@ from sqlalchemy import func, extract
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'bookswap_secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:1234@localhost:5432/bookswap_db').replace('postgres://', 'postgresql://')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/bookswap_db'
+
 db.init_app(app)
 
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://bookswap-project.vercel.app", "https://*.vercel.app"])
 
 login_manager = LoginManager(app)
 
