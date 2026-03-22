@@ -39,6 +39,7 @@ function AppInner() {
   const toastProps = { showToast };
 
   return (
+    <WakeUp>
     <BrowserRouter>
       <Navbar />
       <Routes>
@@ -56,12 +57,15 @@ function AppInner() {
         <Route path="/messages"   element={<Protected><Messages  {...toastProps} /></Protected>} />
         <Route path="/profile"    element={<Protected><Profile   {...toastProps} /></Protected>} />
         <Route path="/admin"      element={<AdminRoute><AdminDashboard {...toastProps} /></AdminRoute>} />
+        <Route path="/analytics"  element={<Protected><SellerAnalytics {...toastProps} /></Protected>} />
+        <Route path="/seller/:sellerId" element={<SellerStore {...toastProps} />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
     </BrowserRouter>
+    </WakeUp>
   );
 }
 

@@ -161,6 +161,15 @@ def google_auth():
 
 
 # ========================
+# PING (health check)
+# ========================
+
+@app.route('/api/ping')
+def ping():
+    return jsonify({"status": "ok", "message": "BookSwap API is running"})
+
+
+# ========================
 # LOGIN
 # ========================
 
