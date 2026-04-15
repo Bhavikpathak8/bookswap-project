@@ -1,0 +1,42 @@
+{
+  "name": "BookSwap — Buy & Sell Books",
+  "short_name": "BookSwap",
+  "description": "India's community for buying and selling second-hand books near you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0a08",
+  "theme_color": "#e8a020",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["books", "education", "shopping"],
+  "shortcuts": [
+    {
+      "name": "Browse Books",
+      "url": "/books",
+      "description": "Browse available books"
+    },
+    {
+      "name": "My Orders",
+      "url": "/orders",
+      "description": "View my orders"
+    },
+    {
+      "name": "Messages",
+      "url": "/messages",
+      "description": "Open chat"
+    }
+  ]
+}
